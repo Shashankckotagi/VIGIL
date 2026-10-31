@@ -1,0 +1,1679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>VIGIL — Live Video Perception & Scene Understanding</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-dark: #0a0d14;
+    --bg-card: rgba(16, 22, 35, 0.8);
+    --bg-card-border: rgba(255, 255, 255, 0.08);
+    --bg-card-hover: rgba(26, 36, 56, 0.9);
+    --ink: #f1f5f9;
+    --ink-muted: #94a3b8;
+    --ink-faint: #475569;
+    
+    --primary: #38bdf8;
+    --primary-glow: rgba(56, 189, 248, 0.25);
+    --emerald: #10b981;
+    --emerald-glow: rgba(16, 185, 129, 0.25);
+    --amber: #f59e0b;
+    --rose: #f43f5e;
+    --indigo: #6366f1;
+
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background-color: var(--bg-dark);
+    background-image: 
+      radial-gradient(at 0% 0%, rgba(56, 189, 248, 0.08) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, rgba(99, 102, 241, 0.07) 0px, transparent 50%),
+      radial-gradient(at 50% 50%, rgba(15, 23, 42, 0.4) 0px, transparent 100%);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+  }
+
+  /* Custom Scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.3); }
+
+  /* Top Navigation */
+  header {
+    background: rgba(10, 13, 20, 0.88);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--bg-card-border);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    padding: 12px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .brand-logo {
+    width: 36px;
+    height: 36px;
+    border-radius: 9px;
+    background: linear-gradient(135deg, #0284c7, #6366f1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 20px rgba(56, 189, 248, 0.35);
+  }
+
+  .brand-logo svg {
+    width: 20px;
+    height: 20px;
+    color: #fff;
+  }
+
+  .brand-text h1 {
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #f8fafc;
+  }
+
+  .brand-text p {
+    font-size: 11px;
+    color: var(--ink-muted);
+  }
+
+  .header-badges {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .status-pill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    border-radius: 9999px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--bg-card-border);
+    transition: all 0.25s ease;
+  }
+
+  .status-pill.live {
+    background: rgba(16, 185, 129, 0.12);
+    border-color: rgba(16, 185, 129, 0.35);
+    color: #34d399;
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.2);
+  }
+
+  .status-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #64748b;
+  }
+
+  .status-pill.live .status-indicator {
+    background: #10b981;
+    animation: pulse-ring 2s infinite cubic-bezier(0.4, 0, 0.6, 1);
+  }
+
+  @keyframes pulse-ring {
+    0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.6); }
+    70% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+  }
+
+  .clock {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--ink-muted);
+    background: rgba(0, 0, 0, 0.3);
+    padding: 6px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--bg-card-border);
+  }
+
+  /* Main Container */
+  .container {
+    max-width: 1600px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    flex: 1;
+  }
+
+  /* Glass Card */
+  .card {
+    background: var(--bg-card);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--bg-card-border);
+    border-radius: 14px;
+    padding: 18px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Input and Controls */
+  .control-card {
+    border-color: rgba(56, 189, 248, 0.2);
+    box-shadow: 0 4px 24px -2px rgba(0, 0, 0, 0.4);
+  }
+
+  .url-input-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .input-wrapper {
+    position: relative;
+    flex: 1 1 450px;
+    display: flex;
+    align-items: center;
+  }
+
+  .input-wrapper svg {
+    position: absolute;
+    left: 14px;
+    width: 18px;
+    height: 18px;
+    color: var(--ink-muted);
+    pointer-events: none;
+  }
+
+  input[type="text"], input[type="password"] {
+    width: 100%;
+    padding: 12px 14px 12px 42px;
+    font-size: 14px;
+    font-family: var(--font-mono);
+    background: rgba(13, 17, 27, 0.85);
+    border: 1px solid var(--bg-card-border);
+    border-radius: 10px;
+    color: #fff;
+    outline: none;
+    transition: all 0.2s;
+  }
+
+  input[type="text"]:focus, input[type="password"]:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--primary-glow);
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 11px 20px;
+    font-size: 13.5px;
+    font-weight: 600;
+    border-radius: 10px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    white-space: nowrap;
+    user-select: none;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, #0284c7, #2563eb);
+    color: #fff;
+    box-shadow: 0 2px 12px rgba(37, 99, 235, 0.35);
+  }
+
+  .btn-primary:hover:not(:disabled) {
+    background: linear-gradient(135deg, #0369a1, #1d4ed8);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(37, 99, 235, 0.45);
+  }
+
+  .btn-secondary {
+    background: rgba(255, 255, 255, 0.08);
+    color: #f1f5f9;
+    border: 1px solid var(--bg-card-border);
+  }
+
+  .btn-secondary:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.14);
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+
+  .btn-stop {
+    background: rgba(244, 63, 94, 0.15);
+    color: #fb7185;
+    border-color: rgba(244, 63, 94, 0.3);
+  }
+
+  .btn-stop:hover:not(:disabled) {
+    background: rgba(244, 63, 94, 0.25);
+    border-color: rgba(244, 63, 94, 0.5);
+    color: #fff;
+  }
+
+  .btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: none !important;
+  }
+
+  /* Preset Pills */
+  .presets-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+    font-size: 12px;
+  }
+
+  .preset-label {
+    color: var(--ink-faint);
+    text-transform: uppercase;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+  }
+
+  .preset-btn {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--bg-card-border);
+    color: var(--ink-muted);
+    padding: 5px 11px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 11.5px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: all 0.15s;
+  }
+
+  .preset-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--ink);
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+
+  /* Settings Row */
+  .settings-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+    align-items: center;
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid var(--bg-card-border);
+    font-size: 13px;
+    color: var(--ink-muted);
+  }
+
+  .setting-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .setting-group select {
+    background: rgba(13, 17, 27, 0.85);
+    border: 1px solid var(--bg-card-border);
+    color: var(--ink);
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-family: var(--font-mono);
+    outline: none;
+    cursor: pointer;
+  }
+
+  .slider-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .slider-group input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 90px;
+    height: 4px;
+    border-radius: 2px;
+    background: rgba(255, 255, 255, 0.15);
+    outline: none;
+  }
+
+  .slider-group input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--primary);
+    cursor: pointer;
+    box-shadow: 0 0 8px var(--primary-glow);
+  }
+
+  .toggle-label {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .toggle-label input[type="checkbox"] {
+    accent-color: var(--primary);
+    width: 15px;
+    height: 15px;
+    cursor: pointer;
+  }
+
+  .api-key-input {
+    width: 180px !important;
+    padding: 6px 10px !important;
+    font-size: 12px !important;
+    border-radius: 6px !important;
+  }
+
+  .error-banner {
+    display: none;
+    margin-top: 12px;
+    padding: 9px 14px;
+    background: rgba(244, 63, 94, 0.15);
+    border: 1px solid rgba(244, 63, 94, 0.35);
+    border-radius: 8px;
+    color: #fb7185;
+    font-size: 13px;
+  }
+
+  /* Grid Layout */
+  .grid-layout {
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: 20px;
+    align-items: start;
+  }
+
+  @media (max-width: 1100px) {
+    .grid-layout {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* Left Column: Video & Telemetry */
+  .left-col {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  /* Video Viewport */
+  .video-viewport {
+    aspect-ratio: 16 / 9;
+    width: 100%;
+    background: #020408;
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+    border: 1px solid var(--bg-card-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .live-video-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: #000;
+  }
+
+  .stream-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    color: var(--ink-faint);
+  }
+
+  .stream-placeholder svg {
+    width: 48px;
+    height: 48px;
+    opacity: 0.5;
+  }
+
+  .stream-badge-overlay {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 11px;
+    font-family: var(--font-mono);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    z-index: 10;
+  }
+
+  .stream-badge-overlay .red-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #ef4444;
+    animation: flash 1s infinite alternate;
+  }
+
+  .video-controls-overlay {
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(8px);
+    border-radius: 6px;
+    padding: 4px 8px;
+    display: flex;
+    gap: 6px;
+    z-index: 10;
+  }
+
+  /* Current Real-time Interpretation Banner */
+  .current-interpretation-card {
+    background: linear-gradient(135deg, rgba(2, 132, 199, 0.15), rgba(99, 102, 241, 0.1));
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    border-radius: 12px;
+    padding: 14px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .ci-header {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .ci-body {
+    font-size: 15px;
+    font-weight: 500;
+    color: #f8fafc;
+    line-height: 1.5;
+  }
+
+  /* Metrics Grid */
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 12px;
+  }
+
+  .metric-card {
+    background: rgba(13, 17, 27, 0.7);
+    border: 1px solid var(--bg-card-border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    transition: border-color 0.2s;
+  }
+
+  .metric-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--ink-muted);
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .metric-value {
+    font-size: 21px;
+    font-weight: 700;
+    font-family: var(--font-mono);
+    color: #fff;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .metric-sub {
+    font-size: 11px;
+    color: var(--ink-faint);
+    margin-top: 3px;
+    font-family: var(--font-mono);
+  }
+
+  /* Gating & SSIM Chart */
+  .chart-card {
+    padding: 14px;
+  }
+
+  .chart-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+
+  .chart-title {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--ink-muted);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .chart-legend {
+    display: flex;
+    gap: 14px;
+    font-size: 11px;
+    color: var(--ink-muted);
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .legend-color {
+    width: 8px;
+    height: 8px;
+    border-radius: 2px;
+  }
+
+  #ssimChart {
+    width: 100%;
+    height: 80px;
+    display: block;
+  }
+
+  .retention-bar-wrapper {
+    margin-top: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 6px;
+    height: 5px;
+    overflow: hidden;
+  }
+
+  .retention-bar-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #10b981, #06b6d4);
+    border-radius: 6px;
+    transition: width 0.3s ease;
+  }
+
+  /* Right Column: Timeline Stream */
+  .right-col {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .timeline-card {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 230px);
+    min-height: 540px;
+  }
+
+  .timeline-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--bg-card-border);
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .timeline-title {
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .timeline-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .timeline-search {
+    background: rgba(13, 17, 27, 0.85);
+    border: 1px solid var(--bg-card-border);
+    border-radius: 6px;
+    padding: 5px 8px;
+    font-size: 12px;
+    color: #fff;
+    outline: none;
+    width: 140px;
+    transition: width 0.2s;
+  }
+
+  .timeline-search:focus {
+    width: 180px;
+    border-color: var(--primary);
+  }
+
+  .icon-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--bg-card-border);
+    color: var(--ink-muted);
+    border-radius: 6px;
+    padding: 5px 8px;
+    cursor: pointer;
+    font-size: 11px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.15s;
+  }
+
+  .icon-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--ink);
+  }
+
+  .icon-btn.active {
+    background: rgba(56, 189, 248, 0.15);
+    color: var(--primary);
+    border-color: rgba(56, 189, 248, 0.4);
+  }
+
+  /* Counter Strip */
+  .counter-strip {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(13, 17, 27, 0.7);
+    border: 1px solid var(--bg-card-border);
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 11.5px;
+    font-family: var(--font-mono);
+    margin-bottom: 8px;
+  }
+  .counter-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .counter-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+  }
+  .counter-dot.free { background: #10b981; }
+  .counter-dot.billed { background: #38bdf8; box-shadow: 0 0 6px rgba(56, 189, 248, 0.5); }
+  .counter-label { color: var(--ink-muted); }
+  .counter-val { font-weight: 700; color: #fff; }
+  .counter-divider { color: var(--ink-faint); }
+
+  /* Filter Chips */
+  .filter-chips {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
+  .chip {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--bg-card-border);
+    color: var(--ink-muted);
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    user-select: none;
+  }
+  .chip:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--ink);
+  }
+  .chip.active {
+    background: rgba(56, 189, 248, 0.15);
+    border-color: rgba(56, 189, 248, 0.45);
+    color: #38bdf8;
+    font-weight: 600;
+  }
+
+  /* Timeline Feed Rows */
+  .timeline-feed {
+    list-style: none;
+    overflow-y: auto;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding-right: 4px;
+  }
+
+  .feed-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 12.5px;
+    line-height: 1.4;
+    transition: background 0.15s ease;
+    border-left: 3px solid transparent;
+    animation: fadeIn 0.2s ease-out;
+  }
+  .feed-row:hover {
+    background: rgba(255, 255, 255, 0.05);
+  }
+  .feed-row.row-billed {
+    color: #f8fafc;
+    border-left: 3px solid #38bdf8;
+    background: rgba(56, 189, 248, 0.06);
+    font-weight: 500;
+  }
+  .feed-row.row-free {
+    color: #94a3b8;
+    opacity: 0.85;
+  }
+  .row-time {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ink-muted);
+    flex: 0 0 44px;
+    font-variant-numeric: tabular-nums;
+  }
+  .row-tag {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 4px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    flex: 0 0 72px;
+    text-align: center;
+    white-space: nowrap;
+  }
+  .tag-llm { background: rgba(56, 189, 248, 0.2); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.35); }
+  .tag-kept { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+  .tag-dropped { background: rgba(255, 255, 255, 0.05); color: #64748b; }
+  .tag-heard { background: rgba(139, 92, 246, 0.18); color: #c084fc; border: 1px solid rgba(139, 92, 246, 0.3); }
+  .tag-silent { background: rgba(255, 255, 255, 0.04); color: #475569; }
+  .tag-escalated { background: rgba(244, 63, 94, 0.2); color: #fb7185; border: 1px solid rgba(244, 63, 94, 0.4); }
+  .tag-queued { background: rgba(6, 182, 212, 0.15); color: #22d3ee; }
+  .tag-memory { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.35); }
+  .tag-waited { background: rgba(251, 146, 60, 0.18); color: #fb923c; }
+  .tag-throttled { background: rgba(234, 179, 8, 0.15); color: #facc15; }
+  .tag-error { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); }
+
+  .row-body {
+    flex: 1;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .event-text {
+    font-size: 13.5px;
+    line-height: 1.5;
+    color: #e2e8f0;
+    word-break: break-word;
+  }
+
+  .timeline-empty {
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    color: var(--ink-faint);
+    text-align: center;
+    padding: 40px 20px;
+  }
+
+  .timeline-empty svg {
+    width: 42px;
+    height: 42px;
+    opacity: 0.3;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <div class="brand-logo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="3"></circle>
+        <path d="M20.188 10.934c.5 1.05.5 2.082 0 3.132C18.6 17.5 15.3 20 12 20s-6.6-2.5-8.188-5.934a3.998 3.998 0 0 1 0-3.132C5.4 7.5 8.7 5 12 5s6.6 2.5 8.188 5.934z"></path>
+      </svg>
+    </div>
+    <div class="brand-text">
+      <h1>VIGIL <span>INTELLIGENCE</span></h1>
+      <p>Continuous Vision & Acoustic Scene Understanding Hub</p>
+    </div>
+  </div>
+
+  <div class="header-badges">
+    <div id="statusPill" class="status-pill">
+      <span class="status-indicator"></span>
+      <span id="statusText">IDLE</span>
+    </div>
+    <div id="clock" class="clock">00:00:00</div>
+  </div>
+</header>
+
+<main class="container">
+  <!-- Top Control Card -->
+  <section class="card control-card">
+    <div class="url-input-row">
+      <div class="input-wrapper">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+          <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+        </svg>
+        <input id="url" type="text" spellcheck="false"
+               placeholder="Enter YouTube live URL, HLS/RTSP stream, or local video path..."
+               value="https://www.youtube.com/live/EO_1LWqsCNE">
+      </div>
+      <button id="btnStart" class="btn btn-primary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+        Start Stream
+      </button>
+      <button id="btnUpload" class="btn btn-secondary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+        Upload Video
+      </button>
+      <input type="file" id="filePicker" accept="video/*" style="display:none;">
+      <button id="btnStop" class="btn btn-stop" disabled>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"></rect></svg>
+        Stop
+      </button>
+    </div>
+
+    <!-- Quick Presets -->
+    <div class="presets-row">
+      <span class="preset-label">Quick Presets:</span>
+      <button class="preset-btn" data-url="https://www.youtube.com/live/EO_1LWqsCNE">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="red"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+        YouTube Live Stream (EarthCam / Traffic)
+      </button>
+      <button class="preset-btn" data-url="sample/demo_clip.avi">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="2.18"></rect></svg>
+        Bundled Demo Clip
+      </button>
+      <button class="preset-btn" data-url="0">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="3"></circle></svg>
+        USB Webcam (0)
+      </button>
+    </div>
+
+    <!-- Settings Bar -->
+    <div class="settings-bar">
+      <div class="setting-group slider-group">
+        <span>Gating Threshold (τ):</span>
+        <input id="tau" type="range" min="0.70" max="0.99" step="0.01" value="0.92">
+        <span id="tauVal" style="font-family:var(--font-mono);font-weight:700;color:var(--primary);">0.92</span>
+      </div>
+
+      <div class="setting-group">
+        <span>Provider:</span>
+        <select id="provider">
+          <option value="mock" selected>Local Computer Vision (Zero Cost)</option>
+          <option value="gemini">Gemini 2.5 Flash (AI Descriptions)</option>
+          <option value="ollama">Ollama (Local qwen2.5vl)</option>
+        </select>
+      </div>
+
+      <div class="setting-group" id="geminiKeyGroup" style="display:none;">
+        <span>API Key:</span>
+        <input type="password" id="geminiKey" class="api-key-input" placeholder="Paste Gemini API Key...">
+      </div>
+
+      <label class="toggle-label">
+        <input id="esc" type="checkbox" checked>
+        <span>Audio Escalation</span>
+      </label>
+
+      <label class="toggle-label">
+        <input id="gate" type="checkbox" checked>
+        <span>Vision Gating</span>
+      </label>
+
+      <label class="toggle-label">
+        <input id="bounded" type="checkbox" checked>
+        <span>Bounded Memory</span>
+      </label>
+    </div>
+
+    <div id="errBanner" class="error-banner"></div>
+  </section>
+
+  <!-- Main Dual Column Display -->
+  <div class="grid-layout">
+    <!-- Left Column: Video & Telemetry -->
+    <div class="left-col">
+      <!-- Video Viewport (Direct OpenCV Live Feed) -->
+      <div class="card" style="padding: 10px;">
+        <div class="video-viewport" id="viewport">
+          <div class="stream-badge-overlay">
+            <span class="red-dot"></span>
+            <span id="streamTypeTag">DIRECT LIVE STREAM</span>
+          </div>
+
+          <div id="videoContainer" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;">
+            <img id="liveFeedImg" class="live-video-img" src="/api/feed" alt="Live Feed"
+                 onerror="this.style.display='none'; document.getElementById('placeholder').style.display='flex';"
+                 onload="this.style.display='block'; document.getElementById('placeholder').style.display='none';">
+            
+            <div class="stream-placeholder" id="placeholder" style="display:none;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="2.18"></rect><path d="M7 2v20M17 2v20M2 12h20M2 7h5M2 17h5M17 17h5M17 7h5"></path></svg>
+              <p id="placeholderText">Connecting to stream...</p>
+            </div>
+          </div>
+
+          <div class="video-controls-overlay">
+            <button class="icon-btn" id="btnRefreshFeed" title="Reload Video Feed">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+            </button>
+            <button class="icon-btn" id="btnFullscreen" title="Fullscreen View">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Current Real-time Interpretation Banner -->
+      <div class="current-interpretation-card">
+        <div class="ci-header">
+          <span>Current Scene Interpretation</span>
+          <span id="ciTimestamp" style="font-family:var(--font-mono);font-size:11px;">00:00</span>
+        </div>
+        <div class="ci-body" id="ciBody">
+          Monitoring stream... Analysis updates in real time as frames are processed.
+        </div>
+      </div>
+
+      <!-- Real-time SSIM Chart -->
+      <div class="card chart-card">
+        <div class="chart-header">
+          <div class="chart-title">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+            Vision Similarity (SSIM) Waveform
+          </div>
+          <div class="chart-legend">
+            <div class="legend-item"><span class="legend-color" style="background:#10b981;"></span> Kept</div>
+            <div class="legend-item"><span class="legend-color" style="background:#f43f5e;"></span> Dropped</div>
+            <div class="legend-item"><span class="legend-color" style="background:#38bdf8;"></span> Threshold (τ)</div>
+          </div>
+        </div>
+        <canvas id="ssimChart" width="700" height="80"></canvas>
+        <div class="retention-bar-wrapper" title="Frame Retention %">
+          <div id="retentionBar" class="retention-bar-fill"></div>
+        </div>
+      </div>
+
+      <!-- System Telemetry Metrics Cards -->
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-label">Frames Kept</div>
+          <div class="metric-value" id="statKept" style="color:#34d399;">0</div>
+          <div class="metric-sub" id="statKeptSub">0 total seen</div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-label">Frames Dropped</div>
+          <div class="metric-value" id="statDropped" style="color:#f87171;">0</div>
+          <div class="metric-sub" id="statRetention">0.0% retention</div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-label">Token Consumption</div>
+          <div class="metric-value" id="statTokens">0</div>
+          <div class="metric-sub" id="statTokensRate">0 tok/hr</div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-label">Inference Latency</div>
+          <div class="metric-value" id="statLatency">—</div>
+          <div class="metric-sub" id="statLatencySub">p50 / p95</div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-label">Active Source</div>
+          <div class="metric-value" id="statSource" style="font-size:15px;margin-top:4px;">IDLE</div>
+          <div class="metric-sub" id="statReconnects">0 reconnects</div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-label">Context Memory</div>
+          <div class="metric-value" id="statMemory" style="font-size:15px;margin-top:4px;">BOUNDED</div>
+          <div class="metric-sub" id="statCompaction">0 compactions</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Real-Time Timeline Stream -->
+    <div class="right-col">
+      <div class="card timeline-card">
+        <div class="timeline-header">
+          <div class="timeline-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+            Perception Feed
+          </div>
+          <div class="timeline-actions">
+            <input type="text" id="filterInput" class="timeline-search" placeholder="Filter events...">
+            <button id="btnAutoScroll" class="icon-btn active" title="Toggle Auto Scroll">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M19 12l-7 7-7-7"></path></svg>
+              Auto-Scroll
+            </button>
+            <button id="btnClearTimeline" class="icon-btn" title="Clear Feed">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Live Totals Counter Strip -->
+        <div class="counter-strip">
+          <div class="counter-item">
+            <span class="counter-dot free"></span>
+            <span class="counter-label">Free:</span>
+            <span class="counter-val" id="cntFree">0</span>
+          </div>
+          <div class="counter-divider">/</div>
+          <div class="counter-item">
+            <span class="counter-dot billed"></span>
+            <span class="counter-label">Billed:</span>
+            <span class="counter-val" id="cntBilled">0</span>
+          </div>
+          <div class="counter-divider">•</div>
+          <div class="counter-item">
+            <span class="counter-label">Free Ratio:</span>
+            <span class="counter-val" id="cntRatio">100%</span>
+          </div>
+        </div>
+
+        <!-- Filter Bar with Toggle Chips -->
+        <div class="filter-chips" id="filterChips">
+          <button class="chip active" data-filter="all">All</button>
+          <button class="chip" data-filter="llm">LLM only</button>
+          <button class="chip" data-filter="gate">Gate</button>
+          <button class="chip" data-filter="audio">Audio</button>
+          <button class="chip" data-filter="system">System</button>
+        </div>
+
+        <ul id="timelineFeed" class="timeline-feed">
+          <li class="timeline-empty" id="emptyPlaceholder">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+            <div>Awaiting video stream analysis...</div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+(function() {
+  const $ = id => document.getElementById(id);
+  let ws = null;
+  let autoScroll = true;
+  let ssimHistory = [];
+  const MAX_SSIM_POINTS = 60;
+
+  // Real-time Clock
+  setInterval(() => {
+    const d = new Date();
+    $('clock').textContent = d.toTimeString().split(' ')[0];
+  }, 1000);
+
+  // SSIM Canvas Renderer
+  const canvas = $('ssimChart');
+  const ctx = canvas.getContext('2d');
+
+  function resizeCanvas() {
+    canvas.width = canvas.parentElement.clientWidth - 28;
+    canvas.height = 80;
+    renderChart();
+  }
+  window.addEventListener('resize', resizeCanvas);
+  setTimeout(resizeCanvas, 50);
+
+  function renderChart() {
+    if (!ctx) return;
+    const w = canvas.width, h = canvas.height;
+    ctx.clearRect(0, 0, w, h);
+
+    const tau = parseFloat($('tau').value) || 0.92;
+    const tauY = h - (tau * h);
+
+    // Grid lines
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+    ctx.lineWidth = 1;
+    for (let y = 0.2; y <= 1.0; y += 0.2) {
+      const gy = h - (y * h);
+      ctx.beginPath();
+      ctx.moveTo(0, gy);
+      ctx.lineTo(w, gy);
+      ctx.stroke();
+    }
+
+    // Threshold line
+    ctx.strokeStyle = 'rgba(56, 189, 248, 0.7)';
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath();
+    ctx.moveTo(0, tauY);
+    ctx.lineTo(w, tauY);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    if (ssimHistory.length < 2) return;
+
+    const step = w / (MAX_SSIM_POINTS - 1);
+    ctx.lineWidth = 2;
+
+    for (let i = 0; i < ssimHistory.length; i++) {
+      const pt = ssimHistory[i];
+      const x = i * step;
+      const y = h - (Math.min(Math.max(pt.score, 0), 1) * h);
+
+      ctx.fillStyle = pt.kept ? '#10b981' : '#f43f5e';
+      ctx.beginPath();
+      ctx.arc(x, y, 3, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+    ctx.beginPath();
+    for (let i = 0; i < ssimHistory.length; i++) {
+      const pt = ssimHistory[i];
+      const x = i * step;
+      const y = h - (Math.min(Math.max(pt.score, 0), 1) * h);
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+  }
+
+  // Refresh live feed image to re-hook MJPEG
+  function restartFeed() {
+    const img = $('liveFeedImg');
+    img.src = '/api/feed?t=' + Date.now();
+    img.style.display = 'block';
+    $('placeholder').style.display = 'none';
+  }
+  $('btnRefreshFeed').onclick = restartFeed;
+
+  $('btnFullscreen').onclick = () => {
+    const vp = $('viewport');
+    if (!document.fullscreenElement) {
+      vp.requestFullscreen().catch(() => {});
+    } else {
+      document.exitFullscreen().catch(() => {});
+    }
+  };
+
+  // Provider change toggle
+  $('provider').onchange = e => {
+    $('geminiKeyGroup').style.display = (e.target.value === 'gemini') ? 'flex' : 'none';
+  };
+
+  // Status updates
+  function applyStatus(s) {
+    if (!s) return;
+    const g = s.gate || {};
+    const m = s.metrics || {};
+    const mem = s.memory || {};
+
+    const isRunning = !!s.running;
+    const pill = $('statusPill');
+    if (isRunning) {
+      pill.className = 'status-pill live';
+      $('statusText').textContent = 'LIVE STREAMING';
+      $('btnStart').disabled = true;
+      $('btnStop').disabled = false;
+      $('streamTypeTag').textContent = 'LIVE OPENCV STREAM';
+      restartFeed();
+    } else {
+      pill.className = 'status-pill';
+      $('statusText').textContent = 'IDLE';
+      $('btnStart').disabled = false;
+      $('btnStop').disabled = true;
+      $('streamTypeTag').textContent = 'STANDBY';
+    }
+
+    $('statKept').textContent = (g.frames_kept || 0).toLocaleString();
+    $('statKeptSub').textContent = `${(g.frames_seen || 0).toLocaleString()} seen`;
+
+    $('statDropped').textContent = (g.frames_dropped || 0).toLocaleString();
+    const ret = g.frame_retention != null ? (g.frame_retention * 100).toFixed(1) : '0.0';
+    $('statRetention').textContent = `${ret}% retention`;
+    $('retentionBar').style.width = `${Math.min(parseFloat(ret), 100)}%`;
+
+    $('statTokens').textContent = (m.tokens_total || 0).toLocaleString();
+    $('statTokensRate').textContent = `${(m.tokens_per_hour || 0).toLocaleString(undefined, {maximumFractionDigits:0})} tok/hr`;
+
+    const p50 = m.p50_latency_s ? m.p50_latency_s.toFixed(2) + 's' : '—';
+    const p95 = m.p95_latency_s ? m.p95_latency_s.toFixed(2) + 's' : '—';
+    $('statLatency').textContent = p95 !== '—' ? p95 : p50;
+    $('statLatencySub').textContent = `p50: ${p50} | p95: ${p95}`;
+
+    $('statSource').textContent = s.url ? (s.url.length > 18 ? s.url.substring(0, 16) + '...' : s.url) : 'IDLE';
+    $('statReconnects').textContent = `${s.reconnects || 0} reconnects`;
+    $('statCompaction').textContent = `${mem.compactions || 0} compactions`;
+  }
+
+  // Counters for live totals
+  let countFree = 0, countBilled = 0;
+  let currentFilter = 'all';
+
+  function updateCounters(cost) {
+    if (cost === 'billed') countBilled++;
+    else countFree++;
+    const total = countFree + countBilled;
+    const ratio = total > 0 ? (countFree / total * 100).toFixed(1) + '%' : '100%';
+    $('cntFree').textContent = countFree.toLocaleString();
+    $('cntBilled').textContent = countBilled.toLocaleString();
+    $('cntRatio').textContent = ratio;
+  }
+
+  function formatEventRow(ev) {
+    const type = ev.type;
+    let tag = '';
+    let cat = 'system';
+    let body = '';
+    let rawT = ev.t ?? 0;
+    let textToSearch = '';
+
+    switch (type) {
+      case 'description':
+        tag = 'LLM';
+        cat = 'llm';
+        rawT = ev.t ?? 0;
+        const badges = [
+          ev.tokens ? `<span class="badge badge-tokens">${ev.tokens} tok</span>` : '',
+          ev.latency_s ? `<span class="badge badge-latency">${ev.latency_s}s</span>` : ''
+        ].filter(Boolean).join(' ');
+        body = `${escapeHtml(ev.text || '')} ${badges}`;
+        textToSearch = ev.text || '';
+        break;
+
+      case 'frame_kept':
+        tag = 'KEPT';
+        cat = 'gate';
+        rawT = ev.t ?? 0;
+        const ssimVal = (ev.ssim ?? 0).toFixed(2);
+        const tauVal = (ev.tau ?? 0.92).toFixed(2);
+        body = `frame passed — SSIM ${ssimVal} below τ ${tauVal}`;
+        textToSearch = body;
+        break;
+
+      case 'gate_drop_run':
+        tag = 'DROPPED';
+        cat = 'gate';
+        rawT = ev.t_start ?? ev.t_end ?? 0;
+        const minS = (ev.ssim_min ?? 0).toFixed(2);
+        const maxS = (ev.ssim_max ?? 0).toFixed(2);
+        body = `${ev.count} frames dropped, no change (SSIM ${minS}–${maxS})`;
+        textToSearch = body;
+        break;
+
+      case 'audio_speech':
+        tag = 'HEARD';
+        cat = 'audio';
+        rawT = ev.t_start ?? 0;
+        const durS = ((ev.duration_ms ?? 0) / 1000).toFixed(1);
+        const peak = (ev.peak_rms ?? 0).toFixed(2);
+        body = `speech, ${durS}s, peak ${peak}`;
+        textToSearch = body;
+        break;
+
+      case 'audio_silence':
+        tag = 'SILENT';
+        cat = 'audio';
+        rawT = ev.t_start ?? 0;
+        const silS = ((ev.duration_ms ?? 0) / 1000).toFixed(1);
+        body = `${silS}s silence, ${ev.frames_dropped ?? 0} frames dropped`;
+        textToSearch = body;
+        break;
+
+      case 'escalation':
+        tag = 'ESCALATED';
+        cat = 'audio';
+        rawT = ev.t ?? 0;
+        const escTau = (ev.tau ?? 0.98).toFixed(2);
+        body = `loud audio — τ relaxed 0.92 → ${escTau} for 30s`;
+        textToSearch = body;
+        break;
+
+      case 'chunk_queued':
+        tag = 'QUEUED';
+        cat = 'system';
+        rawT = ev.t ?? 0;
+        body = `chunk ${ev.chunk} — ${ev.images} frames, ${ev.speech_ms ?? 0}ms speech, queue ${ev.queue_depth}/10`;
+        textToSearch = body;
+        break;
+
+      case 'memory_compacted':
+        tag = 'MEMORY';
+        cat = 'system';
+        rawT = ev.t ?? 0;
+        body = `summary rewritten, ${ev.events_folded ?? 0} events folded, ${ev.summary_chars ?? 0} chars`;
+        textToSearch = body;
+        break;
+
+      case 'backpressure':
+        tag = 'WAITED';
+        cat = 'system';
+        rawT = ev.t ?? 0;
+        const waitS = (ev.waited_s ?? 0).toFixed(1);
+        body = `feeder blocked ${waitS}s, queue full`;
+        textToSearch = body;
+        break;
+
+      case 'rate_limit_wait':
+        tag = 'THROTTLED';
+        cat = 'system';
+        rawT = ev.t ?? 0;
+        const rateS = (ev.waited_s ?? 0).toFixed(1);
+        body = `rate limiter held ${rateS}s`;
+        textToSearch = body;
+        break;
+
+      case 'error':
+        tag = 'ERROR';
+        cat = 'system';
+        rawT = ev.t ?? 0;
+        body = escapeHtml(ev.error || 'pipeline error');
+        textToSearch = body;
+        break;
+
+      default:
+        return null;
+    }
+
+    return { tag, cat, body, rawT, textToSearch };
+  }
+
+  // Add event to timeline feed
+  function addEvent(ev) {
+    if (ev.type === 'frame') return; // High-rate frame telemetry
+
+    const rowData = formatEventRow(ev);
+    if (!rowData) return;
+
+    const list = $('timelineFeed');
+    const placeholder = $('emptyPlaceholder');
+    if (placeholder) placeholder.remove();
+
+    const cost = ev.cost === 'billed' ? 'billed' : 'free';
+    updateCounters(cost);
+
+    const secs = Math.floor(rowData.rawT || 0);
+    const mm = String(Math.floor(secs / 60)).padStart(2, '0');
+    const ss = String(secs % 60).padStart(2, '0');
+    const timeStr = `${mm}:${ss}`;
+
+    // Update current interpretation banner if LLM description
+    if (ev.type === 'description' && ev.text) {
+      $('ciBody').textContent = ev.text;
+      $('ciTimestamp').textContent = timeStr;
+    }
+
+    const li = document.createElement('li');
+    li.className = `feed-row ${cost === 'billed' ? 'row-billed' : 'row-free'}`;
+    li.dataset.category = rowData.cat;
+    li.dataset.text = (timeStr + ' ' + rowData.tag + ' ' + rowData.textToSearch).toLowerCase();
+
+    li.innerHTML = `
+      <span class="row-time">${timeStr}</span>
+      <span class="row-tag tag-${rowData.tag.toLowerCase()}">${rowData.tag}</span>
+      <span class="row-body">${rowData.body}</span>
+    `;
+
+    // Filter visibility
+    const matchesCat = (currentFilter === 'all') || (rowData.cat === currentFilter);
+    const query = $('filterInput').value.toLowerCase().trim();
+    const matchesQuery = !query || li.dataset.text.includes(query);
+    li.style.display = (matchesCat && matchesQuery) ? 'flex' : 'none';
+
+    list.appendChild(li);
+
+    // Cap the list at 400 rows, dropping oldest
+    while (list.children.length > 400) {
+      list.removeChild(list.firstChild);
+    }
+
+    if (autoScroll) {
+      list.scrollTop = list.scrollHeight;
+    }
+  }
+
+  function applyFilter() {
+    const q = $('filterInput').value.toLowerCase().trim();
+    const rows = document.querySelectorAll('.feed-row');
+    rows.forEach(row => {
+      const cat = row.dataset.category;
+      const txt = row.dataset.text || '';
+      const matchesCat = (currentFilter === 'all') || (cat === currentFilter);
+      const matchesQuery = !q || txt.includes(q);
+      row.style.display = (matchesCat && matchesQuery) ? 'flex' : 'none';
+    });
+  }
+
+  // Filter chip clicks
+  document.querySelectorAll('#filterChips .chip').forEach(btn => {
+    btn.onclick = () => {
+      document.querySelectorAll('#filterChips .chip').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentFilter = btn.dataset.filter;
+      applyFilter();
+    };
+  });
+
+  function escapeHtml(str) {
+    return String(str).replace(/[&<>'"]/g, tag => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+    }[tag] || tag));
+  }
+
+  // WebSocket Connection
+  function connect() {
+    const proto = location.protocol === 'https:' ? 'wss' : 'ws';
+    ws = new WebSocket(`${proto}://${location.host}/ws`);
+
+    ws.onmessage = e => {
+      let ev;
+      try { ev = JSON.parse(e.data); } catch { return; }
+
+      if (ev.type === 'frame') {
+        ssimHistory.push({ score: ev.ssim, kept: ev.kept });
+        if (ssimHistory.length > MAX_SSIM_POINTS) ssimHistory.shift();
+        renderChart();
+        applyStatus({ gate: ev.gate, running: true });
+      } else if (ev.type === 'started' || ev.type === 'stopped') {
+        applyStatus(ev.status);
+      } else {
+        // Render every observable action event in the Perception Feed
+        addEvent(ev);
+        if (ev.type === 'description' && ev.status) {
+          applyStatus(ev.status);
+        }
+        if (ev.error) showError(ev.error);
+      }
+    };
+
+    ws.onclose = () => setTimeout(connect, 1500);
+    setInterval(() => { if (ws && ws.readyState === 1) ws.send('ping'); }, 20000);
+  }
+
+  function showError(msg) {
+    const b = $('errBanner');
+    b.textContent = msg;
+    b.style.display = 'block';
+    setTimeout(() => { b.style.display = 'none'; }, 7000);
+  }
+
+  // Preset Buttons
+  document.querySelectorAll('.preset-btn').forEach(btn => {
+    btn.onclick = () => {
+      $('url').value = btn.dataset.url;
+    };
+  });
+
+  $('tau').oninput = e => {
+    $('tauVal').textContent = parseFloat(e.target.value).toFixed(2);
+    renderChart();
+  };
+
+  // Start Pipeline
+  $('btnStart').onclick = async () => {
+    const url = $('url').value.trim();
+    if (!url) { showError('Please enter a valid video URL or file path.'); return; }
+
+    $('btnStart').disabled = true;
+    try {
+      const res = await fetch('/api/start', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          url: url,
+          tau: parseFloat($('tau').value),
+          escalation: $('esc').checked,
+          gate: $('gate').checked,
+          bounded: $('bounded').checked,
+          provider: $('provider').value,
+          api_key: $('geminiKey').value.trim() || undefined
+        })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        showError(data.error || 'Failed to start stream.');
+        $('btnStart').disabled = false;
+      } else {
+        applyStatus(data.status);
+        restartFeed();
+      }
+    } catch (e) {
+      showError(String(e));
+      $('btnStart').disabled = false;
+    }
+  };
+
+  // Stop Pipeline
+  $('btnStop').onclick = async () => {
+    try {
+      const res = await fetch('/api/stop', { method: 'POST' });
+      const data = await res.json();
+      applyStatus(data.status);
+    } catch (e) {
+      showError(String(e));
+    }
+  };
+
+  // Video File Upload
+  $('btnUpload').onclick = () => $('filePicker').click();
+  $('filePicker').onchange = async e => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const fd = new FormData();
+    fd.append('file', file);
+    $('btnUpload').disabled = true;
+    $('btnUpload').textContent = 'Uploading...';
+
+    try {
+      const res = await fetch('/api/upload', { method: 'POST', body: fd });
+      const data = await res.json();
+      if (res.ok && data.path) {
+        $('url').value = data.path;
+        $('btnStart').click();
+      } else {
+        showError(data.error || 'Failed to upload video');
+      }
+    } catch (err) {
+      showError('Upload error: ' + err);
+    } finally {
+      $('btnUpload').disabled = false;
+      $('btnUpload').innerHTML = `
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+        Upload Video`;
+    }
+  };
+
+  $('btnAutoScroll').onclick = () => {
+    autoScroll = !autoScroll;
+    $('btnAutoScroll').classList.toggle('active', autoScroll);
+  };
+
+  $('btnClearTimeline').onclick = () => {
+    countFree = 0;
+    countBilled = 0;
+    $('cntFree').textContent = '0';
+    $('cntBilled').textContent = '0';
+    $('cntRatio').textContent = '100%';
+    $('timelineFeed').innerHTML = `
+      <li class="timeline-empty" id="emptyPlaceholder">
+        <div>Feed cleared. Awaiting new events...</div>
+      </li>`;
+  };
+
+  $('filterInput').oninput = applyFilter;
+
+  connect();
+  fetch('/api/status').then(r => r.json()).then(applyStatus).catch(() => {});
+})();
+</script>
+</body>
+</html>

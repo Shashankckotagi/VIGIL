@@ -1,0 +1,586 @@
+{
+  "report_environment": {
+    "timestamp": "2026-10-29T13:52:16.643121+00:00",
+    "provider": "mock",
+    "model": "mock-v1",
+    "cpu": "Intel64 Family 6 Model 154 Stepping 3, GenuineIntel",
+    "ram_gb": 15.7,
+    "gpu": "NVIDIA GeForce RTX 3050 Laptop GPU",
+    "os": "Windows 11 (10.0.26200)",
+    "python_version": "3.13.5",
+    "footage_path": "sample/demo_clip.avi",
+    "footage_duration_s": 60.0,
+    "footage_resolution": "320x240",
+    "annotation_count": 4,
+    "second_annotator_used": false,
+    "non_default_configs": {
+      "replay_speed": 10.0,
+      "rate_limit_calls": 1000,
+      "rate_limit_window_s": 1.0
+    }
+  },
+  "pricing_model": {
+    "input_per_million_usd": 0.075,
+    "output_per_million_usd": 0.3,
+    "usd_to_inr": 86.0
+  },
+  "runs": {
+    "A": {
+      "run_id": "A",
+      "gate_enabled": false,
+      "memory_bounded": false,
+      "escalation_enabled": false,
+      "tau": 0.92,
+      "cost": {
+        "frames_seen": 120,
+        "frames_kept": 120,
+        "frames_dropped": 0,
+        "frame_retention_pct": 100.0,
+        "audio_retention_pct": 13.8,
+        "tokens_in": 49772,
+        "tokens_out": 798,
+        "tokens_total": 50570,
+        "tokens_per_hour": 3112000.0,
+        "bytes_transmitted": 325568,
+        "cost_usd": 0.003972,
+        "cost_inr": 0.3416,
+        "reduction_pct_vs_A": 0.0,
+        "reduction_mult_vs_A": 1.0
+      },
+      "flatness": {
+        "slope_ratio": 1.397,
+        "prompt_char_ratio": 3.667,
+        "prompt_token_ratio": 3.678,
+        "tokens_by_clock_hour": [
+          50570
+        ]
+      },
+      "latency_stability": {
+        "p50_latency_s": 0.156,
+        "p95_latency_s": 0.158,
+        "p99_latency_s": 0.158,
+        "mean_queue_depth": 1.0,
+        "max_queue_depth": 0,
+        "quarter_mean_queue_depth": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "backpressure_events_count": 0,
+        "backpressure_seconds_blocked": 0,
+        "http_429_count": 0,
+        "error_count": 0,
+        "retry_count": 0,
+        "source_reconnect_count": 0,
+        "wall_duration_s": 7.14,
+        "stream_duration_s": 58.5,
+        "wall_vs_stream_ratio": 0.12
+      },
+      "accuracy": {
+        "temporal_recall": 1.0,
+        "semantic_recall": 0.0,
+        "precision": 1.0,
+        "recall_all": 1.0,
+        "recall_audio_only": 1.0
+      },
+      "escalations": 0
+    },
+    "B": {
+      "run_id": "B",
+      "gate_enabled": true,
+      "memory_bounded": false,
+      "escalation_enabled": false,
+      "tau": 0.92,
+      "cost": {
+        "frames_seen": 120,
+        "frames_kept": 36,
+        "frames_dropped": 84,
+        "frame_retention_pct": 30.0,
+        "audio_retention_pct": 13.8,
+        "tokens_in": 11328,
+        "tokens_out": 216,
+        "tokens_total": 11544,
+        "tokens_per_hour": 755607.3,
+        "bytes_transmitted": 113656,
+        "cost_usd": 0.000914,
+        "cost_inr": 0.0786,
+        "reduction_pct_vs_A": 77.17,
+        "reduction_mult_vs_A": 4.38
+      },
+      "flatness": {
+        "slope_ratio": 1.416,
+        "prompt_char_ratio": 2.455,
+        "prompt_token_ratio": 2.458,
+        "tokens_by_clock_hour": [
+          11544
+        ]
+      },
+      "latency_stability": {
+        "p50_latency_s": 0.154,
+        "p95_latency_s": 0.156,
+        "p99_latency_s": 0.156,
+        "mean_queue_depth": 1.0,
+        "max_queue_depth": 0,
+        "quarter_mean_queue_depth": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "backpressure_events_count": 0,
+        "backpressure_seconds_blocked": 0,
+        "http_429_count": 0,
+        "error_count": 0,
+        "retry_count": 0,
+        "source_reconnect_count": 0,
+        "wall_duration_s": 7.13,
+        "stream_duration_s": 55.0,
+        "wall_vs_stream_ratio": 0.13
+      },
+      "accuracy": {
+        "temporal_recall": 1.0,
+        "semantic_recall": 0.0,
+        "precision": 1.0,
+        "recall_all": 1.0,
+        "recall_audio_only": 1.0
+      },
+      "escalations": 0
+    },
+    "C": {
+      "run_id": "C",
+      "gate_enabled": true,
+      "memory_bounded": true,
+      "escalation_enabled": false,
+      "tau": 0.92,
+      "cost": {
+        "frames_seen": 120,
+        "frames_kept": 36,
+        "frames_dropped": 84,
+        "frame_retention_pct": 30.0,
+        "audio_retention_pct": 13.8,
+        "tokens_in": 10925,
+        "tokens_out": 216,
+        "tokens_total": 11141,
+        "tokens_per_hour": 729229.1,
+        "bytes_transmitted": 113656,
+        "cost_usd": 0.000884,
+        "cost_inr": 0.076,
+        "reduction_pct_vs_A": 77.97,
+        "reduction_mult_vs_A": 4.54
+      },
+      "flatness": {
+        "slope_ratio": 1.318,
+        "prompt_char_ratio": 1.561,
+        "prompt_token_ratio": 1.558,
+        "tokens_by_clock_hour": [
+          11141
+        ]
+      },
+      "latency_stability": {
+        "p50_latency_s": 0.154,
+        "p95_latency_s": 0.155,
+        "p99_latency_s": 0.156,
+        "mean_queue_depth": 1.0,
+        "max_queue_depth": 0,
+        "quarter_mean_queue_depth": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "backpressure_events_count": 0,
+        "backpressure_seconds_blocked": 0,
+        "http_429_count": 0,
+        "error_count": 0,
+        "retry_count": 0,
+        "source_reconnect_count": 0,
+        "wall_duration_s": 7.12,
+        "stream_duration_s": 55.0,
+        "wall_vs_stream_ratio": 0.13
+      },
+      "accuracy": {
+        "temporal_recall": 1.0,
+        "semantic_recall": 0.0,
+        "precision": 1.0,
+        "recall_all": 1.0,
+        "recall_audio_only": 1.0
+      },
+      "escalations": 0
+    },
+    "D": {
+      "run_id": "D",
+      "gate_enabled": true,
+      "memory_bounded": true,
+      "escalation_enabled": true,
+      "tau": 0.92,
+      "cost": {
+        "frames_seen": 120,
+        "frames_kept": 41,
+        "frames_dropped": 79,
+        "frame_retention_pct": 34.17,
+        "audio_retention_pct": 13.8,
+        "tokens_in": 11879,
+        "tokens_out": 234,
+        "tokens_total": 12113,
+        "tokens_per_hour": 800124.8,
+        "bytes_transmitted": 121188,
+        "cost_usd": 0.000961,
+        "cost_inr": 0.0826,
+        "reduction_pct_vs_A": 76.05,
+        "reduction_mult_vs_A": 4.17
+      },
+      "flatness": {
+        "slope_ratio": 1.158,
+        "prompt_char_ratio": 1.92,
+        "prompt_token_ratio": 1.929,
+        "tokens_by_clock_hour": [
+          12113
+        ]
+      },
+      "latency_stability": {
+        "p50_latency_s": 0.154,
+        "p95_latency_s": 0.156,
+        "p99_latency_s": 0.156,
+        "mean_queue_depth": 1.0,
+        "max_queue_depth": 0,
+        "quarter_mean_queue_depth": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "backpressure_events_count": 0,
+        "backpressure_seconds_blocked": 0,
+        "http_429_count": 0,
+        "error_count": 0,
+        "retry_count": 0,
+        "source_reconnect_count": 0,
+        "wall_duration_s": 7.14,
+        "stream_duration_s": 54.5,
+        "wall_vs_stream_ratio": 0.13
+      },
+      "accuracy": {
+        "temporal_recall": 1.0,
+        "semantic_recall": 0.0,
+        "precision": 1.0,
+        "recall_all": 1.0,
+        "recall_audio_only": 1.0
+      },
+      "escalations": 1
+    },
+    "S1": {
+      "run_id": "S1",
+      "gate_enabled": true,
+      "memory_bounded": true,
+      "escalation_enabled": false,
+      "tau": 0.8,
+      "cost": {
+        "frames_seen": 120,
+        "frames_kept": 1,
+        "frames_dropped": 119,
+        "frame_retention_pct": 0.83,
+        "audio_retention_pct": 13.8,
+        "tokens_in": 325,
+        "tokens_out": 16,
+        "tokens_total": 341,
+        "tokens_per_hour": 20460.0,
+        "bytes_transmitted": 2512,
+        "cost_usd": 2.9e-05,
+        "cost_inr": 0.0025,
+        "reduction_pct_vs_A": 99.33,
+        "reduction_mult_vs_A": 148.3
+      },
+      "flatness": {
+        "slope_ratio": null,
+        "prompt_char_ratio": null,
+        "prompt_token_ratio": null,
+        "tokens_by_clock_hour": [
+          341
+        ]
+      },
+      "latency_stability": {
+        "p50_latency_s": 0.155,
+        "p95_latency_s": 0.155,
+        "p99_latency_s": 0.155,
+        "mean_queue_depth": 1.0,
+        "max_queue_depth": 0,
+        "quarter_mean_queue_depth": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "backpressure_events_count": 0,
+        "backpressure_seconds_blocked": 0,
+        "http_429_count": 0,
+        "error_count": 0,
+        "retry_count": 0,
+        "source_reconnect_count": 0,
+        "wall_duration_s": 7.12,
+        "stream_duration_s": 60.0,
+        "wall_vs_stream_ratio": 0.12
+      },
+      "accuracy": {
+        "temporal_recall": 0.25,
+        "semantic_recall": 0.0,
+        "precision": 1.0,
+        "recall_all": 0.25,
+        "recall_audio_only": 0.0
+      },
+      "escalations": 0
+    },
+    "S2": {
+      "run_id": "S2",
+      "gate_enabled": true,
+      "memory_bounded": true,
+      "escalation_enabled": false,
+      "tau": 0.86,
+      "cost": {
+        "frames_seen": 120,
+        "frames_kept": 1,
+        "frames_dropped": 119,
+        "frame_retention_pct": 0.83,
+        "audio_retention_pct": 13.8,
+        "tokens_in": 325,
+        "tokens_out": 16,
+        "tokens_total": 341,
+        "tokens_per_hour": 20460.0,
+        "bytes_transmitted": 2512,
+        "cost_usd": 2.9e-05,
+        "cost_inr": 0.0025,
+        "reduction_pct_vs_A": 99.33,
+        "reduction_mult_vs_A": 148.3
+      },
+      "flatness": {
+        "slope_ratio": null,
+        "prompt_char_ratio": null,
+        "prompt_token_ratio": null,
+        "tokens_by_clock_hour": [
+          341
+        ]
+      },
+      "latency_stability": {
+        "p50_latency_s": 0.152,
+        "p95_latency_s": 0.152,
+        "p99_latency_s": 0.152,
+        "mean_queue_depth": 1.0,
+        "max_queue_depth": 0,
+        "quarter_mean_queue_depth": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "backpressure_events_count": 0,
+        "backpressure_seconds_blocked": 0,
+        "http_429_count": 0,
+        "error_count": 0,
+        "retry_count": 0,
+        "source_reconnect_count": 0,
+        "wall_duration_s": 7.08,
+        "stream_duration_s": 60.0,
+        "wall_vs_stream_ratio": 0.12
+      },
+      "accuracy": {
+        "temporal_recall": 0.25,
+        "semantic_recall": 0.0,
+        "precision": 1.0,
+        "recall_all": 0.25,
+        "recall_audio_only": 0.0
+      },
+      "escalations": 0
+    },
+    "S3": {
+      "run_id": "S3",
+      "gate_enabled": true,
+      "memory_bounded": true,
+      "escalation_enabled": false,
+      "tau": 0.92,
+      "cost": {
+        "frames_seen": 120,
+        "frames_kept": 36,
+        "frames_dropped": 84,
+        "frame_retention_pct": 30.0,
+        "audio_retention_pct": 13.8,
+        "tokens_in": 10925,
+        "tokens_out": 216,
+        "tokens_total": 11141,
+        "tokens_per_hour": 729229.1,
+        "bytes_transmitted": 113656,
+        "cost_usd": 0.000884,
+        "cost_inr": 0.076,
+        "reduction_pct_vs_A": 77.97,
+        "reduction_mult_vs_A": 4.54
+      },
+      "flatness": {
+        "slope_ratio": 1.318,
+        "prompt_char_ratio": 1.561,
+        "prompt_token_ratio": 1.558,
+        "tokens_by_clock_hour": [
+          11141
+        ]
+      },
+      "latency_stability": {
+        "p50_latency_s": 0.154,
+        "p95_latency_s": 0.155,
+        "p99_latency_s": 0.156,
+        "mean_queue_depth": 1.0,
+        "max_queue_depth": 0,
+        "quarter_mean_queue_depth": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "backpressure_events_count": 0,
+        "backpressure_seconds_blocked": 0,
+        "http_429_count": 0,
+        "error_count": 0,
+        "retry_count": 0,
+        "source_reconnect_count": 0,
+        "wall_duration_s": 7.12,
+        "stream_duration_s": 55.0,
+        "wall_vs_stream_ratio": 0.13
+      },
+      "accuracy": {
+        "temporal_recall": 1.0,
+        "semantic_recall": 0.0,
+        "precision": 1.0,
+        "recall_all": 1.0,
+        "recall_audio_only": 1.0
+      },
+      "escalations": 0
+    },
+    "S4": {
+      "run_id": "S4",
+      "gate_enabled": true,
+      "memory_bounded": true,
+      "escalation_enabled": false,
+      "tau": 0.96,
+      "cost": {
+        "frames_seen": 120,
+        "frames_kept": 41,
+        "frames_dropped": 79,
+        "frame_retention_pct": 34.17,
+        "audio_retention_pct": 13.8,
+        "tokens_in": 11865,
+        "tokens_out": 234,
+        "tokens_total": 12099,
+        "tokens_per_hour": 799200.0,
+        "bytes_transmitted": 121188,
+        "cost_usd": 0.00096,
+        "cost_inr": 0.0826,
+        "reduction_pct_vs_A": 76.07,
+        "reduction_mult_vs_A": 4.18
+      },
+      "flatness": {
+        "slope_ratio": 1.153,
+        "prompt_char_ratio": 1.92,
+        "prompt_token_ratio": 1.929,
+        "tokens_by_clock_hour": [
+          12099
+        ]
+      },
+      "latency_stability": {
+        "p50_latency_s": 0.155,
+        "p95_latency_s": 0.156,
+        "p99_latency_s": 0.157,
+        "mean_queue_depth": 1.0,
+        "max_queue_depth": 0,
+        "quarter_mean_queue_depth": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "backpressure_events_count": 0,
+        "backpressure_seconds_blocked": 0,
+        "http_429_count": 0,
+        "error_count": 0,
+        "retry_count": 0,
+        "source_reconnect_count": 0,
+        "wall_duration_s": 7.1,
+        "stream_duration_s": 54.5,
+        "wall_vs_stream_ratio": 0.13
+      },
+      "accuracy": {
+        "temporal_recall": 1.0,
+        "semantic_recall": 0.0,
+        "precision": 1.0,
+        "recall_all": 1.0,
+        "recall_audio_only": 1.0
+      },
+      "escalations": 0
+    },
+    "S5": {
+      "run_id": "S5",
+      "gate_enabled": true,
+      "memory_bounded": true,
+      "escalation_enabled": false,
+      "tau": 0.99,
+      "cost": {
+        "frames_seen": 120,
+        "frames_kept": 41,
+        "frames_dropped": 79,
+        "frame_retention_pct": 34.17,
+        "audio_retention_pct": 13.8,
+        "tokens_in": 11866,
+        "tokens_out": 234,
+        "tokens_total": 12100,
+        "tokens_per_hour": 799266.1,
+        "bytes_transmitted": 121188,
+        "cost_usd": 0.00096,
+        "cost_inr": 0.0826,
+        "reduction_pct_vs_A": 76.07,
+        "reduction_mult_vs_A": 4.18
+      },
+      "flatness": {
+        "slope_ratio": 1.139,
+        "prompt_char_ratio": 1.92,
+        "prompt_token_ratio": 1.929,
+        "tokens_by_clock_hour": [
+          12100
+        ]
+      },
+      "latency_stability": {
+        "p50_latency_s": 0.155,
+        "p95_latency_s": 0.16,
+        "p99_latency_s": 0.165,
+        "mean_queue_depth": 1.0,
+        "max_queue_depth": 0,
+        "quarter_mean_queue_depth": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "backpressure_events_count": 0,
+        "backpressure_seconds_blocked": 0,
+        "http_429_count": 0,
+        "error_count": 0,
+        "retry_count": 0,
+        "source_reconnect_count": 0,
+        "wall_duration_s": 7.14,
+        "stream_duration_s": 54.5,
+        "wall_vs_stream_ratio": 0.13
+      },
+      "accuracy": {
+        "temporal_recall": 1.0,
+        "semantic_recall": 0.0,
+        "precision": 1.0,
+        "recall_all": 1.0,
+        "recall_audio_only": 1.0
+      },
+      "escalations": 0
+    }
+  },
+  "escalation_summary": {
+    "escalations_triggered": 1,
+    "false_escalation_rate": 0.0,
+    "additional_frames_kept_vs_C": 5,
+    "audio_recall_delta_pp": 0.0,
+    "extra_token_cost_pct": 8.72,
+    "concentration_ratio": 0.4
+  }
+}

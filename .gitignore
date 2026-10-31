@@ -1,0 +1,14 @@
+__pycache__/
+*.pyc
+.venv/
+.env
+logs/*.csv
+logs/*.json
+*.mp4
+*.avi
+!sample/demo_clip.avi
+scratch/
+.pytest_cache/
+report/.temp_logs/
+cloudflared.exe
+*.log

@@ -1,0 +1,41 @@
+chunk_index,wall_t,stream_t,frames_seen,frames_kept,frame_retention_cum,speech_ms,peak_rms,escalated,tau,images_sent,payload_bytes,tokens_in,tokens_out,tokens_cum,latency_s,queue_depth,retries,rate_limit_faults,error,description
+0,1793281879.725,0.1,3,3,1.0,0,0.0,0,0.92,3,7536,832,21,853,0.157,0,0,0,,Stable scene; no significant visual movement detected. Scene under dim / night scene.
+1,1793281879.912,2.01,3,3,1.0,1260,0.3237,0,0.92,3,7560,872,21,1746,0.156,0,0,0,,Stable scene; no significant visual movement detected. Scene under dim / night scene.
+2,1793281880.035,3.27,3,3,1.0,840,0.3237,0,0.92,3,7544,872,21,2639,0.156,0,0,0,,Stable scene; no significant visual movement detected. Scene under dim / night scene.
+3,1793281880.221,4.11,3,3,1.0,1980,0.3237,0,0.92,3,7540,916,21,3576,0.153,0,0,0,,Stable scene; no significant visual movement detected. Scene under dim / night scene.
+4,1793281880.347,6.1,3,3,1.0,60,0.0,0,0.92,3,7548,916,21,4513,0.158,0,0,0,,Stable scene; no significant visual movement detected. Scene under dim / night scene.
+5,1793281880.47,7.6,3,3,1.0,0,0.0,0,0.92,3,8588,930,18,5461,0.155,0,0,0,,"Active motion observed (6.7% change, 2 dynamic objects). Dim / night scene."
+6,1793281880.656,9.1,3,3,1.0,0,0.0,0,0.92,3,9720,971,18,6450,0.155,0,0,0,,"Active motion observed (6.9% change, 2 dynamic objects). Dim / night scene."
+7,1793281880.779,10.6,3,3,1.0,0,0.0,0,0.92,3,9704,971,18,7439,0.154,0,0,0,,"Active motion observed (6.7% change, 2 dynamic objects). Dim / night scene."
+8,1793281880.968,12.1,3,3,1.0,0,0.0,0,0.92,3,8072,1010,21,8470,0.158,0,0,0,,Stable scene; no significant visual movement detected. Scene under dim / night scene.
+9,1793281881.093,13.6,3,3,1.0,0,0.0,0,0.92,3,7568,1010,21,9501,0.155,0,0,0,,Stable scene; no significant visual movement detected. Scene under dim / night scene.
+10,1793281881.217,15.1,3,3,1.0,0,0.0,0,0.92,3,7552,1032,21,10554,0.156,0,0,0,,Stable scene; no significant visual movement detected. Scene under dim / night scene.
+11,1793281881.405,16.6,3,3,1.0,0,0.0,0,0.92,3,7556,1076,21,11651,0.156,0,0,0,,Stable scene; no significant visual movement detected. Scene under dim / night scene.
+12,1793281881.529,18.1,3,3,1.0,0,0.0,0,0.92,3,7536,1076,21,12748,0.156,0,0,0,,Stable scene; no significant visual movement detected. Scene under dim / night scene.
+13,1793281881.715,19.6,3,3,1.0,0,0.0,0,0.92,3,7564,1120,21,13889,0.154,0,0,0,,Stable scene; no significant visual movement detected. Scene under dim / night scene.
+14,1793281881.839,21.1,3,3,1.0,0,0.0,0,0.92,3,8072,1120,18,15027,0.155,0,0,0,,"Active motion observed (6.2% change, 1 dynamic object). Dim / night scene."
+15,1793281881.962,22.6,3,3,1.0,0,0.0,0,0.92,3,9532,1142,18,16187,0.154,0,0,0,,"Active motion observed (6.7% change, 2 dynamic objects). Dim / night scene."
+16,1793281882.152,24.1,3,3,1.0,0,0.0,0,0.92,3,9720,1181,18,17386,0.157,0,0,0,,"Active motion observed (6.9% change, 2 dynamic objects). Dim / night scene."
+17,1793281882.276,25.6,3,3,1.0,0,0.0,0,0.92,3,8804,1181,18,18585,0.156,0,0,0,,"Active motion observed (6.2% change, 1 dynamic object). Dim / night scene."
+18,1793281882.462,27.1,3,3,1.0,0,0.0,0,0.92,3,7552,1220,21,19826,0.156,0,0,0,,Stable scene; no significant visual movement detected. Scene under dim / night scene.
+19,1793281882.587,28.6,3,3,1.0,0,0.0,0,0.92,3,7544,1220,21,21067,0.154,0,0,0,,Stable scene; no significant visual movement detected. Scene under dim / night scene.
+20,1793281882.774,30.1,3,3,1.0,0,0.0,0,0.92,3,7540,1264,21,22352,0.156,0,0,0,,Stable scene; no significant visual movement detected. Scene under dim / night scene.
+21,1793281882.898,31.6,3,3,1.0,0,0.0,0,0.92,3,7552,1264,21,23637,0.156,0,0,0,,Stable scene; no significant visual movement detected. Scene under dim / night scene.
+22,1793281883.023,33.1,3,3,1.0,0,0.0,0,0.92,3,7556,1286,21,24944,0.156,0,0,0,,Stable scene; no significant visual movement detected. Scene under dim / night scene.
+23,1793281883.21,34.6,3,3,1.0,0,0.0,0,0.92,3,7536,1330,21,26295,0.155,0,0,0,,Stable scene; no significant visual movement detected. Scene under dim / night scene.
+24,1793281883.334,36.1,3,3,1.0,0,0.0,0,0.92,3,7552,1330,21,27646,0.155,0,0,0,,Stable scene; no significant visual movement detected. Scene under dim / night scene.
+25,1793281883.521,38.01,3,3,1.0,1230,0.561,0,0.92,3,8584,1383,18,29047,0.155,0,0,0,,"Active motion observed (6.7% change, 2 dynamic objects). Dim / night scene."
+26,1793281883.645,39.1,3,3,1.0,1110,0.561,0,0.92,3,9760,1383,18,30448,0.156,0,0,0,,"Active motion observed (6.9% change, 2 dynamic objects). Dim / night scene."
+27,1793281883.77,40.35,3,3,1.0,1380,0.561,0,0.92,3,9696,1402,18,31868,0.156,0,0,0,,"Active motion observed (6.7% change, 2 dynamic objects). Dim / night scene."
+28,1793281883.959,41.73,3,3,1.0,420,0.561,0,0.92,3,8052,1441,21,33330,0.158,0,0,0,,Stable scene; no significant visual movement detected. Scene under dim / night scene.
+29,1793281884.084,43.6,3,3,1.0,0,0.0,0,0.92,3,7544,1432,21,34783,0.156,0,0,0,,Stable scene; no significant visual movement detected. Scene under dim / night scene.
+30,1793281884.271,45.1,3,3,1.0,0,0.0,0,0.92,3,7556,1476,21,36280,0.157,0,0,0,,Stable scene; no significant visual movement detected. Scene under dim / night scene.
+31,1793281884.397,46.6,3,3,1.0,0,0.0,0,0.92,3,7540,1476,21,37777,0.158,0,0,0,,Stable scene; no significant visual movement detected. Scene under dim / night scene.
+32,1793281884.521,48.1,3,3,1.0,0,0.0,0,0.92,3,7556,1498,21,39296,0.155,0,0,0,,Stable scene; no significant visual movement detected. Scene under dim / night scene.
+33,1793281884.71,49.6,3,3,1.0,0,0.0,0,0.92,3,7556,1542,21,40859,0.158,0,0,0,,Stable scene; no significant visual movement detected. Scene under dim / night scene.
+34,1793281884.836,51.1,3,3,1.0,0,0.0,0,0.92,3,8068,1542,18,42419,0.158,0,0,0,,"Active motion observed (6.2% change, 1 dynamic object). Dim / night scene."
+35,1793281885.023,52.6,3,3,1.0,0,0.0,0,0.92,3,9520,1584,18,44021,0.156,0,0,0,,"Active motion observed (6.7% change, 2 dynamic objects). Dim / night scene."
+36,1793281885.147,54.1,3,3,1.0,0,0.0,0,0.92,3,9676,1584,18,45623,0.155,0,0,0,,"Active motion observed (6.9% change, 2 dynamic objects). Dim / night scene."
+37,1793281885.271,55.6,3,3,1.0,0,0.0,0,0.92,3,8812,1603,18,47244,0.154,0,0,0,,"Active motion observed (6.2% change, 1 dynamic object). Dim / night scene."
+38,1793281885.46,57.1,3,3,1.0,0,0.0,0,0.92,3,7556,1642,21,48907,0.157,0,0,0,,Stable scene; no significant visual movement detected. Scene under dim / night scene.
+39,1793281885.587,58.6,3,3,1.0,0,0.0,0,0.92,3,7544,1642,21,50570,0.158,0,0,0,,Stable scene; no significant visual movement detected. Scene under dim / night scene.

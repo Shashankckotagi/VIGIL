@@ -1,0 +1,21 @@
+# core pipeline
+numpy>=1.26
+opencv-python>=4.9          # use opencv-python-headless on a server
+scikit-image>=0.22
+webrtcvad>=2.0.10
+httpx>=0.27
+
+# web dashboard
+fastapi>=0.110
+uvicorn[standard]>=0.29
+pydantic>=2.6
+
+# stream resolution
+yt-dlp>=2024.1.1
+
+# experiments and analysis
+pandas>=2.2
+matplotlib>=3.8
+
+# optional: tests via pytest (tests also run standalone)
+# pytest>=8.0

@@ -1,0 +1,2 @@
+chunk_index,wall_t,stream_t,frames_seen,frames_kept,frame_retention_cum,speech_ms,peak_rms,escalated,tau,images_sent,payload_bytes,tokens_in,tokens_out,tokens_cum,latency_s,queue_depth,retries,rate_limit_faults,error,description
+0,1793281919.52,0.1,83,1,0.0118,7230,0.561,0,0.86,1,2512,325,16,341,0.152,0,0,0,,Stream active (320x240). Ambient illumination: dim / night scene.

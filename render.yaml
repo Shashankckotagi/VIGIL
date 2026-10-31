@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: vigil-perception
+    env: docker
+    dockerfilePath: Dockerfile
+    plan: free
+    healthCheckPath: /api/status
+    envVars:
+      - key: VIGIL_LOG_LEVEL
+        value: INFO
+      - key: VIGIL_PROVIDER
+        value: mock
