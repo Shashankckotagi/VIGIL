@@ -15,7 +15,7 @@ Paste a live URL (RTSP, YouTube Live, HLS, webcam, or video file). A timeline fi
 ## 🌐 Live Online Demo
 
 The VIGIL interactive perception dashboard is hosted live online:
-- **Live Stream Perception UI**: [https://dos-truck-donna-cloud.trycloudflare.com](https://dos-truck-donna-cloud.trycloudflare.com)
+- **Live Stream Perception UI**: [https://identifier-west-emissions-activities.trycloudflare.com](https://identifier-west-emissions-activities.trycloudflare.com)
 
 ---
 
