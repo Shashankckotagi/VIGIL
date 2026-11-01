@@ -5,12 +5,16 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PORT=8000
 
 # Install system dependencies: ffmpeg for media processing, libgl for opencv,
-# build-essential so native Python packages like webrtcvad can compile.
+# and the C toolchain so native Python packages like webrtcvad can compile.
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ffmpeg \
     libgl1 \
     libglib2.0-0 \
     build-essential \
+    gcc \
+    g++ \
+    make \
+    python3-dev \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
