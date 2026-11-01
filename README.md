@@ -61,8 +61,8 @@ The vision and audio gates run **strictly zero neural networks** — pure determ
 
 ```bash
 # Clone the repository
-git clone https://github.com/Shashankckotagi/vigil-web.git
-cd vigil-web
+git clone https://github.com/Shashankckotagi/VIGIL.git
+cd VIGIL
 
 # Create virtual environment
 python -m venv .venv
