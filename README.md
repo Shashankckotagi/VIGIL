@@ -1,7 +1,5 @@
 # VIGIL: Vision Gating with Intermittent Listening
 
-[![CI/CD Pipeline](https://github.com/Shashankckotagi/VIGIL/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/Shashankckotagi/VIGIL/actions/workflows/ci-cd.yml)
-[![Docker Image](https://img.shields.io/badge/GHCR-Docker%20Image-blue?logo=docker)](https://github.com/Shashankckotagi/VIGIL/pkgs/container/vigil)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Python: 3.11+](https://img.shields.io/badge/Python-3.11%20%7C%203.12-blue)](https://python.org)
 
