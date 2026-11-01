@@ -10,3 +10,4 @@ services:
         value: INFO
       - key: VIGIL_PROVIDER
         value: mock
+
