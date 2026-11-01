@@ -976,6 +976,11 @@
         </select>
       </div>
 
+      <div class="setting-group" id="backendGroup">
+        <span>Backend:</span>
+        <input type="text" id="backendUrl" class="api-key-input" placeholder="Current Origin (or https://...)" title="URL of backend server (e.g. on Render/Cloudflare) when hosted on Netlify">
+      </div>
+
       <div class="setting-group" id="geminiKeyGroup" style="display:none;">
         <span>API Key:</span>
         <input type="password" id="geminiKey" class="api-key-input" placeholder="Paste Gemini API Key...">
@@ -1246,10 +1251,29 @@
     ctx.stroke();
   }
 
+  // Helper for API & WebSocket URLs (supports Netlify and separate backend hosting)
+  function getBackendUrl() {
+    return (localStorage.getItem('vigil_backend_url') || '').trim().replace(/\/$/, '');
+  }
+  function apiUrl(path) {
+    const base = getBackendUrl();
+    return base ? `${base}${path}` : path;
+  }
+  function wsUrl() {
+    const base = getBackendUrl();
+    if (base) {
+      const wsProto = base.startsWith('https') ? 'wss:' : 'ws:';
+      const host = base.replace(/^https?:\/\//, '');
+      return `${wsProto}//${host}/ws`;
+    }
+    const proto = location.protocol === 'https:' ? 'wss' : 'ws';
+    return `${proto}://${location.host}/ws`;
+  }
+
   // Refresh live feed image to re-hook MJPEG
   function restartFeed() {
     const img = $('liveFeedImg');
-    img.src = '/api/feed?t=' + Date.now();
+    img.src = apiUrl('/api/feed?t=' + Date.now());
     img.style.display = 'block';
     $('placeholder').style.display = 'none';
   }
@@ -1530,8 +1554,12 @@
 
   // WebSocket Connection
   function connect() {
-    const proto = location.protocol === 'https:' ? 'wss' : 'ws';
-    ws = new WebSocket(`${proto}://${location.host}/ws`);
+    try {
+      ws = new WebSocket(wsUrl());
+    } catch (e) {
+      console.warn('WebSocket connection error:', e);
+      return;
+    }
 
     ws.onmessage = e => {
       let ev;
@@ -1584,7 +1612,7 @@
 
     $('btnStart').disabled = true;
     try {
-      const res = await fetch('/api/start', {
+      const res = await fetch(apiUrl('/api/start'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -1614,7 +1642,7 @@
   // Stop Pipeline
   $('btnStop').onclick = async () => {
     try {
-      const res = await fetch('/api/stop', { method: 'POST' });
+      const res = await fetch(apiUrl('/api/stop'), { method: 'POST' });
       const data = await res.json();
       applyStatus(data.status);
     } catch (e) {
@@ -1634,7 +1662,7 @@
     $('btnUpload').textContent = 'Uploading...';
 
     try {
-      const res = await fetch('/api/upload', { method: 'POST', body: fd });
+      const res = await fetch(apiUrl('/api/upload'), { method: 'POST', body: fd });
       const data = await res.json();
       if (res.ok && data.path) {
         $('url').value = data.path;
@@ -1671,8 +1699,23 @@
 
   $('filterInput').oninput = applyFilter;
 
+  // Initialize Backend URL input
+  const backendInput = $('backendUrl');
+  if (backendInput) {
+    backendInput.value = getBackendUrl();
+    backendInput.onchange = e => {
+      localStorage.setItem('vigil_backend_url', e.target.value.trim());
+      if (ws) {
+        try { ws.close(); } catch (_) {}
+      }
+      connect();
+      fetch(apiUrl('/api/status')).then(r => r.json()).then(applyStatus).catch(() => {});
+      restartFeed();
+    };
+  }
+
   connect();
-  fetch('/api/status').then(r => r.json()).then(applyStatus).catch(() => {});
+  fetch(apiUrl('/api/status')).then(r => r.json()).then(applyStatus).catch(() => {});
 })();
 </script>
 </body>
