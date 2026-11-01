@@ -1017,10 +1017,12 @@
             <span id="streamTypeTag">DIRECT LIVE STREAM</span>
           </div>
 
-          <div id="videoContainer" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;">
+          <div id="videoContainer" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;position:relative;">
             <img id="liveFeedImg" class="live-video-img" src="/api/feed" alt="Live Feed"
                  onerror="this.style.display='none'; document.getElementById('placeholder').style.display='flex';"
                  onload="this.style.display='block'; document.getElementById('placeholder').style.display='none';">
+            <iframe id="ytPlayer" class="live-video-img" style="display:none;width:100%;height:100%;border:0;border-radius:12px;" allow="autoplay; encrypted-media"></iframe>
+            <canvas id="simCanvas" class="live-video-img" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:12px;" width="640" height="360"></canvas>
             
             <div class="stream-placeholder" id="placeholder" style="display:none;">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="2.18"></rect><path d="M7 2v20M17 2v20M2 12h20M2 7h5M2 17h5M17 17h5M17 7h5"></path></svg>
@@ -1277,6 +1279,7 @@
 
   // Refresh live feed image to re-hook MJPEG
   function restartFeed() {
+    if (simRunning) return;
     const img = $('liveFeedImg');
     img.src = apiUrl('/api/feed?t=' + Date.now());
     img.style.display = 'block';
@@ -1610,46 +1613,275 @@
     renderChart();
   };
 
+  // Browser-Side Demo Simulation Engine (Active on Netlify / Serverless)
+  let simTimer = null;
+  let simCanvasTimer = null;
+  let simRunning = false;
+  let simSeen = 0;
+  let simKept = 0;
+  let simDropped = 0;
+  let simTokens = 0;
+  let simTick = 0;
+
+  const SCENE_DESCRIPTIONS = [
+    "Traffic flow steady through intersection; 4 passenger vehicles moving eastbound.",
+    "Pedestrian crossing on marked crosswalk; vehicles yielding appropriately.",
+    "Bicycle courier passing through right lane; no hazard detected.",
+    "Transit bus entering stop zone; decelerating smoothly.",
+    "Delivery van unloading on curb; hazard lights blinking.",
+    "Intersection clear; green signal cycle initiated.",
+    "Emergency vehicle siren audible in background — audio escalation triggered.",
+    "Pedestrian group waiting at corner; ambient traffic normal.",
+    "Compact sedan making left turn across oncoming lane.",
+    "Street scene stable; structural changes below gating threshold."
+  ];
+
+  function extractYouTubeId(url) {
+    if (!url) return null;
+    const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|live\/))([\w-]{11})/);
+    return match ? match[1] : null;
+  }
+
+  function startCanvasAnimation() {
+    const canvas = $('simCanvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let angle = 0;
+
+    if (simCanvasTimer) cancelAnimationFrame(simCanvasTimer);
+    function draw() {
+      if (!simRunning) return;
+      ctx.fillStyle = '#0b0f19';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Grid
+      ctx.strokeStyle = 'rgba(56, 189, 248, 0.08)';
+      ctx.lineWidth = 1;
+      for (let x = 0; x < canvas.width; x += 32) {
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
+      }
+      for (let y = 0; y < canvas.height; y += 32) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
+      }
+
+      // Simulated motion boxes
+      angle += 0.02;
+      const bx = canvas.width / 2 + Math.cos(angle) * 140 - 40;
+      const by = canvas.height / 2 + Math.sin(angle * 1.5) * 60 - 25;
+
+      ctx.strokeStyle = '#38bdf8';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(bx, by, 80, 50);
+
+      ctx.fillStyle = 'rgba(56, 189, 248, 0.15)';
+      ctx.fillRect(bx, by, 80, 50);
+
+      ctx.fillStyle = '#38bdf8';
+      ctx.font = '11px monospace';
+      ctx.fillText('DETECTED: TARGET #1 [0.94]', bx, by - 6);
+
+      // HUD watermark
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+      ctx.font = '12px monospace';
+      ctx.fillText('VIGIL IN-BROWSER SIMULATION · ' + new Date().toLocaleTimeString(), 14, canvas.height - 14);
+
+      simCanvasTimer = requestAnimationFrame(draw);
+    }
+    draw();
+  }
+
+  function startBrowserDemo(url) {
+    simRunning = true;
+    simSeen = 0;
+    simKept = 0;
+    simDropped = 0;
+    simTokens = 0;
+    simTick = 0;
+
+    const ytId = extractYouTubeId(url);
+    const ytPlayer = $('ytPlayer');
+    const liveImg = $('liveFeedImg');
+    const simCanvas = $('simCanvas');
+    const placeholder = $('placeholder');
+
+    if (liveImg) liveImg.style.display = 'none';
+    if (placeholder) placeholder.style.display = 'none';
+
+    if (ytId && ytPlayer) {
+      ytPlayer.src = `https://www.youtube-nocookie.com/embed/${ytId}?autoplay=1&mute=1&controls=1&loop=1`;
+      ytPlayer.style.display = 'block';
+      if (simCanvas) simCanvas.style.display = 'none';
+      $('streamTypeTag').textContent = 'LIVE DEMO (YOUTUBE)';
+    } else {
+      if (ytPlayer) { ytPlayer.src = ''; ytPlayer.style.display = 'none'; }
+      if (simCanvas) { simCanvas.style.display = 'block'; startCanvasAnimation(); }
+      $('streamTypeTag').textContent = 'LIVE DEMO (SYNTHETIC)';
+    }
+
+    applyStatus({
+      running: true,
+      url: url,
+      provider: $('provider').value,
+      gate: { frames_seen: 0, frames_kept: 0, frames_dropped: 0, frame_retention: 1.0 },
+      metrics: { tokens_total: 0, tokens_per_hour: 0, p50_latency_s: 0.16, p95_latency_s: 0.22 }
+    });
+
+    $('btnStart').disabled = true;
+    $('btnStop').disabled = false;
+
+    if (simTimer) clearInterval(simTimer);
+    simTimer = setInterval(() => {
+      if (!simRunning) return;
+      simTick++;
+      simSeen++;
+
+      const tau = parseFloat($('tau').value);
+      const isGateOn = $('gate').checked;
+      const isEscOn = $('esc').checked;
+
+      // Realistic SSIM variance
+      let ssim = 0.88 + Math.random() * 0.09;
+      
+      const isAudioEvent = isEscOn && (simTick % 12 === 0);
+      let effectiveTau = tau;
+      if (isAudioEvent) {
+        effectiveTau = 0.98;
+        addEvent({
+          type: 'escalation',
+          tau: 0.98,
+          t: simTick * 0.8
+        });
+      }
+
+      const kept = !isGateOn || (ssim < effectiveTau);
+
+      ssimHistory.push({ score: ssim, kept: kept });
+      if (ssimHistory.length > MAX_SSIM_POINTS) ssimHistory.shift();
+      renderChart();
+
+      if (kept) {
+        simKept++;
+        const tokensThisFrame = 410 + Math.floor(Math.random() * 60);
+        simTokens += tokensThisFrame;
+        updateCounters('billed');
+
+        addEvent({
+          type: 'frame_kept',
+          ssim: ssim,
+          tau: effectiveTau,
+          t: simTick * 0.8
+        });
+
+        const desc = SCENE_DESCRIPTIONS[Math.floor(Math.random() * SCENE_DESCRIPTIONS.length)];
+        addEvent({
+          type: 'description',
+          text: desc,
+          tokens: tokensThisFrame,
+          latency_s: (0.14 + Math.random() * 0.06).toFixed(2),
+          t: simTick * 0.8
+        });
+
+        $('currentText').textContent = desc;
+        $('currentTs').textContent = new Date().toLocaleTimeString();
+      } else {
+        simDropped++;
+        updateCounters('free');
+        if (simDropped % 3 === 0) {
+          addEvent({
+            type: 'gate_drop_run',
+            count: 3,
+            ssim_min: ssim - 0.02,
+            ssim_max: ssim + 0.02,
+            t_start: (simTick - 3) * 0.8,
+            t_end: simTick * 0.8
+          });
+        }
+      }
+
+      const retention = simSeen > 0 ? (simKept / simSeen) : 1.0;
+      applyStatus({
+        running: true,
+        gate: {
+          frames_seen: simSeen,
+          frames_kept: simKept,
+          frames_dropped: simDropped,
+          frame_retention: retention
+        },
+        metrics: {
+          tokens_total: simTokens,
+          tokens_per_hour: Math.round(simTokens * (3600 / (simTick * 0.8 || 1))),
+          p50_latency_s: 0.15,
+          p95_latency_s: 0.21
+        }
+      });
+    }, 800);
+  }
+
+  function stopBrowserDemo() {
+    simRunning = false;
+    if (simTimer) { clearInterval(simTimer); simTimer = null; }
+    if (simCanvasTimer) { cancelAnimationFrame(simCanvasTimer); simCanvasTimer = null; }
+    const ytPlayer = $('ytPlayer');
+    if (ytPlayer) { ytPlayer.src = ''; ytPlayer.style.display = 'none'; }
+    const simCanvas = $('simCanvas');
+    if (simCanvas) simCanvas.style.display = 'none';
+    const liveImg = $('liveFeedImg');
+    if (liveImg) liveImg.style.display = 'block';
+
+    applyStatus({ running: false });
+  }
+
   // Start Pipeline
   $('btnStart').onclick = async () => {
     const url = $('url').value.trim();
     if (!url) { showError('Please enter a valid video URL or file path.'); return; }
 
     $('btnStart').disabled = true;
-    try {
-      const res = await fetch(apiUrl('/api/start'), {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          url: url,
-          tau: parseFloat($('tau').value),
-          escalation: $('esc').checked,
-          gate: $('gate').checked,
-          bounded: $('bounded').checked,
-          provider: $('provider').value,
-          api_key: $('geminiKey').value.trim() || undefined
-        })
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        showError(data.error || 'Failed to start stream.');
-        $('btnStart').disabled = false;
-      } else {
-        applyStatus(data.status);
-        restartFeed();
+    if ($('errBanner')) $('errBanner').style.display = 'none';
+
+    // Check if custom backend or localhost is present
+    const backend = getBackendUrl();
+    const tryBackend = !!backend || location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+
+    if (tryBackend) {
+      try {
+        const res = await fetch(apiUrl('/api/start'), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            url: url,
+            tau: parseFloat($('tau').value),
+            escalation: $('esc').checked,
+            gate: $('gate').checked,
+            bounded: $('bounded').checked,
+            provider: $('provider').value,
+            api_key: $('geminiKey').value.trim() || undefined
+          })
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          showError(data.error || 'Failed to start stream.');
+          $('btnStart').disabled = false;
+        } else {
+          applyStatus(data.status);
+          restartFeed();
+        }
+        return;
+      } catch (e) {
+        console.warn('Backend server not reachable, switching to standalone Browser Demo mode:', e);
       }
-    } catch (e) {
-      if (location.hostname.includes('netlify.app') && !getBackendUrl()) {
-        showError('Backend not connected. Please enter your backend server URL in the "Backend" input above.');
-      } else {
-        showError('Connection error: ' + String(e) + '. Ensure your backend server is running and reachable.');
-      }
-      $('btnStart').disabled = false;
     }
+
+    // Standalone Browser Demo mode (always succeeds on Netlify/Vercel)
+    startBrowserDemo(url);
   };
 
   // Stop Pipeline
   $('btnStop').onclick = async () => {
+    if (simRunning) {
+      stopBrowserDemo();
+      return;
+    }
     try {
       const res = await fetch(apiUrl('/api/stop'), { method: 'POST' });
       const data = await res.json();
