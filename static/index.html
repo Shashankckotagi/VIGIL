@@ -1253,7 +1253,12 @@
 
   // Helper for API & WebSocket URLs (supports Netlify and separate backend hosting)
   function getBackendUrl() {
-    return (localStorage.getItem('vigil_backend_url') || '').trim().replace(/\/$/, '');
+    const saved = localStorage.getItem('vigil_backend_url');
+    if (saved !== null && saved.trim() !== '') return saved.trim().replace(/\/$/, '');
+    if (location.hostname.includes('netlify.app')) {
+      return 'https://ship-patterns-sharing-worlds.trycloudflare.com';
+    }
+    return '';
   }
   function apiUrl(path) {
     const base = getBackendUrl();
@@ -1634,7 +1639,11 @@
         restartFeed();
       }
     } catch (e) {
-      showError(String(e));
+      if (location.hostname.includes('netlify.app') && !getBackendUrl()) {
+        showError('Backend not connected. Please enter your backend server URL in the "Backend" input above.');
+      } else {
+        showError('Connection error: ' + String(e) + '. Ensure your backend server is running and reachable.');
+      }
       $('btnStart').disabled = false;
     }
   };
