@@ -61,8 +61,8 @@ The vision and audio gates run **strictly zero neural networks** — pure determ
 
 ```bash
 # Clone the repository
-git clone https://github.com/Shashankckotagi/VIGIL.git
-cd VIGIL
+git clone https://github.com/Shashankckotagi/vigil-web.git
+cd vigil-web
 
 # Create virtual environment
 python -m venv .venv
@@ -109,16 +109,6 @@ Or build locally:
 docker build -t vigil .
 docker run -p 8000:8000 vigil
 ```
-
----
-
-## 🔄 CI/CD Automation
-
-Every commit pushed to `main` triggers our GitHub Actions pipeline:
-- **Unit & Integration Tests**: Runs 26 pytest test suites across Python 3.11 and 3.12.
-- **Verification Harness**: Validates Objectives O1 (Flat Cost), O2 (Queue Stability), and O3 (Recall).
-- **Automated Container Packaging**: Builds multi-arch Docker image and publishes it to GHCR (`ghcr.io/shashankckotagi/vigil:latest`).
-- **Research Artifact Generation**: Auto-generates high-resolution IEEE benchmark figures.
 
 ---
 
