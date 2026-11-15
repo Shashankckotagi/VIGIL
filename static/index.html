@@ -1017,6 +1017,7 @@
             <span id="streamTypeTag">DIRECT LIVE STREAM</span>
           </div>
 
+          <div id="videoContainer" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;">
           <div id="videoContainer" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;position:relative;">
             <img id="liveFeedImg" class="live-video-img" src="/api/feed" alt="Live Feed"
                  onerror="this.style.display='none'; document.getElementById('placeholder').style.display='flex';"
@@ -1253,13 +1254,18 @@
     ctx.stroke();
   }
 
-  // Helper for API & WebSocket URLs (supports Netlify and separate backend hosting)
+  // Helper for API & WebSocket URLs (supports local hosting and Netlify)
   function getBackendUrl() {
+    // When running locally on localhost / 127.0.0.1, ALWAYS use current local server directly
+    if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+      const saved = localStorage.getItem('vigil_backend_url');
+      if (saved && (saved.includes('localhost') || saved.includes('127.0.0.1'))) {
+        return saved.trim().replace(/\/$/, '');
+      }
+      return '';
+    }
     const saved = localStorage.getItem('vigil_backend_url');
     if (saved !== null && saved.trim() !== '') return saved.trim().replace(/\/$/, '');
-    if (location.hostname.includes('netlify.app')) {
-      return 'https://ship-patterns-sharing-worlds.trycloudflare.com';
-    }
     return '';
   }
   function apiUrl(path) {
@@ -1280,10 +1286,17 @@
   // Refresh live feed image to re-hook MJPEG
   function restartFeed() {
     if (simRunning) return;
+    const ytPlayer = $('ytPlayer');
+    if (ytPlayer) { ytPlayer.src = ''; ytPlayer.style.display = 'none'; }
+    const simCanvas = $('simCanvas');
+    if (simCanvas) simCanvas.style.display = 'none';
     const img = $('liveFeedImg');
-    img.src = apiUrl('/api/feed?t=' + Date.now());
-    img.style.display = 'block';
-    $('placeholder').style.display = 'none';
+    if (img) {
+      img.src = apiUrl('/api/feed?t=' + Date.now());
+      img.style.display = 'block';
+    }
+    const ph = $('placeholder');
+    if (ph) ph.style.display = 'none';
   }
   $('btnRefreshFeed').onclick = restartFeed;
 
@@ -1569,6 +1582,13 @@
       return;
     }
 
+    ws.onopen = () => {
+      const pill = $('statusPill');
+      if (pill && !pill.classList.contains('live')) {
+        $('statusText').textContent = 'READY';
+      }
+    };
+
     ws.onmessage = e => {
       let ev;
       try { ev = JSON.parse(e.data); } catch { return; }
@@ -1837,6 +1857,27 @@
     if (!url) { showError('Please enter a valid video URL or file path.'); return; }
 
     $('btnStart').disabled = true;
+    try {
+      const res = await fetch(apiUrl('/api/start'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          url: url,
+          tau: parseFloat($('tau').value),
+          escalation: $('esc').checked,
+          gate: $('gate').checked,
+          bounded: $('bounded').checked,
+          provider: $('provider').value,
+          api_key: $('geminiKey').value.trim() || undefined
+        })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        showError(data.error || 'Failed to start stream.');
+        $('btnStart').disabled = false;
+      } else {
+        applyStatus(data.status);
+        restartFeed();
     if ($('errBanner')) $('errBanner').style.display = 'none';
 
     // Check if custom backend or localhost is present
@@ -1870,6 +1911,13 @@
       } catch (e) {
         console.warn('Backend server not reachable, switching to standalone Browser Demo mode:', e);
       }
+    } catch (e) {
+      if (location.hostname.includes('netlify.app') && !getBackendUrl()) {
+        showError('Backend not connected. Please enter your backend server URL in the "Backend" input above.');
+      } else {
+        showError('Connection error: ' + String(e) + '. Ensure your backend server is running and reachable.');
+      }
+      $('btnStart').disabled = false;
     }
 
     // Standalone Browser Demo mode (always succeeds on Netlify/Vercel)
@@ -1943,6 +1991,13 @@
   // Initialize Backend URL input
   const backendInput = $('backendUrl');
   if (backendInput) {
+    if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+      backendInput.placeholder = 'Current Origin (http://' + location.host + ')';
+      const cur = localStorage.getItem('vigil_backend_url');
+      if (cur && !cur.includes('localhost') && !cur.includes('127.0.0.1')) {
+        localStorage.removeItem('vigil_backend_url');
+      }
+    }
     backendInput.value = getBackendUrl();
     backendInput.onchange = e => {
       localStorage.setItem('vigil_backend_url', e.target.value.trim());

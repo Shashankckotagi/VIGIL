@@ -162,11 +162,15 @@ async def start(req: StartRequest) -> Any:
 async def video_feed() -> Any:
     """Stream live captured video frames as MJPEG directly to the browser."""
     import cv2
+    from fastapi import Response
+
+    if not hub.pipeline or not getattr(hub.pipeline, "running", False):
+        return Response(status_code=204)
 
     async def frame_generator():
-        while True:
+        while hub.pipeline and getattr(hub.pipeline, "running", False):
             frame = None
-            if hub.pipeline and hub.pipeline.source:
+            if hub.pipeline.source:
                 frame = getattr(hub.pipeline.source, "latest_frame", None)
             if frame is not None:
                 ret, buffer = cv2.imencode(".jpg", frame, [cv2.IMWRITE_JPEG_QUALITY, 75])
